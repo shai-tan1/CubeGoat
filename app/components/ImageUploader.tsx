@@ -40,7 +40,7 @@ export default function ImageUploader() {
         formData.append("file", file);
 
         // NOTE: Change this URL to your Render backend URL once deployed!
-        const response = await fetch("http://127.0.0.1:8000/api/vision/extract", {
+        const response = await fetch("https://YOUR-RENDER-URL.onrender.com/api/vision/extract", {
           method: "POST",
           body: formData,
         });

@@ -55,7 +55,7 @@ const handleSolve = async () => {
 
       // 3. Send it to your Python Server
       // Note: When you deploy the backend to Render, change this URL!
-      const response = await fetch("http://127.0.0.1:8000/api/solve", {
+      const response = await fetch("https://cube-api-su0x.onrender.com", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ state: stateString })
