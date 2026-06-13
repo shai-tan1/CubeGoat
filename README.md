@@ -15,7 +15,7 @@ Cube Goat provides an efficient, user-friendly interface to calculate optimal so
 ![Main UI](assets/Screenshot%20from%202026-06-14%2003-11-11.png)
 
 ### Manual State Mapping
-![Manual Grid](assets/image_b4a67d.png)
+![Manual Grid](assets/manual-grid.png)
 
 ## Features
 *   **Optimal Solver**: Uses the Two-Phase Algorithm to guarantee solutions under 20 moves.
