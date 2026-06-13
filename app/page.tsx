@@ -1,13 +1,15 @@
 "use client";
 import { useState } from "react";
-import Navbar from "./components/Navbar";     // <-- Import Navbar
-import Footer from "./components/Footer";     // <-- Import Footer
+import Navbar from "./components/Navbar";
+import Footer from "./components/Footer";
 import CubeGrid from "./components/CubeGrid";
+import InteractiveCube from './components/InteractiveCube';
 import ImageUploader from "./components/ImageUploader";
 import { Code, Clock, BrainCircuit, Fingerprint } from "lucide-react";
 
 export default function Home() {
-  const [mode, setMode] = useState<"manual" | "upload">("manual");
+  // 1. Added "3d" to the available modes and set it as the default!
+  const [mode, setMode] = useState<"manual" | "3d" | "upload">("3d");
 
   return (
     <div className="min-h-screen flex flex-col bg-white dark:bg-[#0a0a0a] transition-colors duration-300">
@@ -51,7 +53,18 @@ export default function Home() {
               to extract colors automatically.
             </p>
 
-            <div className="flex gap-3">
+            {/* 2. Added flex-wrap and the new 3D Paint button */}
+            <div className="flex flex-wrap gap-3">
+              <button 
+                onClick={() => setMode("3d")}
+                className={`px-4 py-2 rounded-lg text-sm transition-all flex items-center gap-2 font-medium ${
+                  mode === "3d" 
+                    ? "bg-black text-white dark:bg-white dark:text-black shadow-md" 
+                    : "bg-gray-100 text-gray-600 dark:bg-[#111] dark:text-gray-300 border border-gray-200 dark:border-gray-800 hover:bg-gray-200 dark:hover:bg-[#1a1a1a]"
+                }`}
+              >
+                🧊 3D Paint
+              </button>
               <button 
                 onClick={() => setMode("manual")}
                 className={`px-4 py-2 rounded-lg text-sm transition-all flex items-center gap-2 font-medium ${
@@ -60,7 +73,7 @@ export default function Home() {
                     : "bg-gray-100 text-gray-600 dark:bg-[#111] dark:text-gray-300 border border-gray-200 dark:border-gray-800 hover:bg-gray-200 dark:hover:bg-[#1a1a1a]"
                 }`}
               >
-                ⌨ Manual Input
+                ⌨ 2D Grid
               </button>
               <button 
                 onClick={() => setMode("upload")}
@@ -77,8 +90,11 @@ export default function Home() {
 
           <div className="w-full h-px bg-gray-200 dark:bg-gray-800/60 my-4"></div>
 
+          {/* 3. Updated the render logic to handle all three components */}
           <section className="animate-in fade-in duration-500">
-            {mode === "manual" ? <CubeGrid /> : <ImageUploader />}
+            {mode === "3d" && <InteractiveCube />}
+            {mode === "manual" && <CubeGrid />}
+            {mode === "upload" && <ImageUploader />}
           </section>
 
         </div>
