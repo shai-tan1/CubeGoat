@@ -24,14 +24,56 @@ export default function CubeGrid() {
     setCubeState(newState);
   };
 
-  const handleSolve = async () => {
+const handleSolve = async () => {
     setIsSolving(true);
     setSolution([]); 
     setError(null); 
-    setTimeout(() => { 
-      setSolution(["U", "R2", "F'", "D", "L2", "U'", "B"]);
+
+    try {
+      // 1. Convert our CSS classes into the characters Kociemba expects (U, R, F, D, L, B)
+      const colorToChar: Record<string, string> = {
+        "bg-[#ededed]": "U", // White is usually Up
+        "bg-[#58a6ff]": "R", // Blue is usually Right
+        "bg-[#e05252]": "F", // Red is usually Front
+        "bg-[#e2b93d]": "D", // Yellow is usually Down
+        "bg-[#2ea043]": "L", // Green is usually Left
+        "bg-[#e67e22]": "B", // Orange is usually Back
+      };
+
+      // 2. Build the 54-character string
+      let stateString = "";
+      for (const cssClass of cubeState) {
+        // Extract just the background color part to match our dictionary
+        const colorClass = cssClass.split(" ")[0]; 
+        const char = colorToChar[colorClass];
+        
+        if (!char) {
+           throw new Error("Cube is not fully colored. Please fill all 54 squares.");
+        }
+        stateString += char;
+      }
+
+      // 3. Send it to your Python Server
+      // Note: When you deploy the backend to Render, change this URL!
+      const response = await fetch("http://127.0.0.1:8000/api/solve", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ state: stateString })
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.detail || "Failed to calculate solution.");
+      }
+
+      const data = await response.json();
+      setSolution(data.solution);
+
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
       setIsSolving(false);
-    }, 800);
+    }
   };
 
   const Face = ({ faceIndex, label }: { faceIndex: number; label: string }) => {
