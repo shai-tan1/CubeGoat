@@ -1,5 +1,7 @@
 # Cube Goat 🧊
 
+**[🚀 Live Demo: cube-goat.vercel.app](https://cube-goat.vercel.app/)**
+
 Computer Vision & Logic Engine for optimal Rubik's Cube solutions.
 
 [![Next.js](https://img.shields.io/badge/Next.js-black?logo=next.js)](https://nextjs.org/)
