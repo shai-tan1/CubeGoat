@@ -30,25 +30,39 @@ const handleSolve = async () => {
     setError(null); 
 
     try {
-      // 1. Convert our CSS classes into the characters Kociemba expects (U, R, F, D, L, B)
-      const colorToChar: Record<string, string> = {
-        "bg-[#ededed]": "U", // White is usually Up
-        "bg-[#58a6ff]": "R", // Blue is usually Right
-        "bg-[#e05252]": "F", // Red is usually Front
-        "bg-[#e2b93d]": "D", // Yellow is usually Down
-        "bg-[#2ea043]": "L", // Green is usually Left
-        "bg-[#e67e22]": "B", // Orange is usually Back
-      };
+      // 1. Dynamic center mapping (same approach the working 3D solver uses):
+      //    each face's painted CENTER defines that face's Kociemba letter, so any
+      //    color scheme / orientation works as long as it's internally consistent.
+      //    cubeState is ordered U,R,F,D,L,B (9 stickers each); the 6 centers sit
+      //    at the indices below.
+      const keyOf = (cls: string) => cls.split(" ")[0];
+      const UNPAINTED = "bg-gray-200";
+      const centerIndex: Record<string, number> = { U: 4, R: 13, F: 22, D: 31, L: 40, B: 49 };
 
-      // 2. Build the 54-character string
+      const colorToChar: Record<string, string> = {};
+      for (const [face, idx] of Object.entries(centerIndex)) {
+        const key = keyOf(cubeState[idx]);
+        if (key === UNPAINTED) {
+          throw new Error("Cube is not fully colored. Please fill all 54 squares, including the 6 centers.");
+        }
+        colorToChar[key] = face;
+      }
+
+      // Every face center must be a distinct color (6 unique centers).
+      if (Object.keys(colorToChar).length !== 6) {
+        throw new Error("Invalid state: all 6 center squares must be different colors.");
+      }
+
+      // 2. Build the 54-character string, labelling every sticker by its center color.
       let stateString = "";
       for (const cssClass of cubeState) {
-        // Extract just the background color part to match our dictionary
-        const colorClass = cssClass.split(" ")[0]; 
-        const char = colorToChar[colorClass];
-        
+        const key = keyOf(cssClass);
+        if (key === UNPAINTED) {
+          throw new Error("Cube is not fully colored. Please fill all 54 squares.");
+        }
+        const char = colorToChar[key];
         if (!char) {
-           throw new Error("Cube is not fully colored. Please fill all 54 squares.");
+          throw new Error("Color mismatch: every sticker must match one of the 6 center colors.");
         }
         stateString += char;
       }
