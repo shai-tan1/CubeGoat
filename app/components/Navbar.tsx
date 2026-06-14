@@ -1,35 +1,24 @@
 "use client";
 import { useTheme } from "next-themes";
 import { Sun, Moon } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 
 export default function Navbar() {
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
 
-  useEffect(() => setMounted(true), []);
+  useEffect(() => {
+    setMounted(true);
+    // Preload the audio strictly on the client side
+    audioRef.current = new Audio("/sounds/click.mp3");
+  }, []);
 
   const playClickSound = () => {
-    try {
-      const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
-      const ctx = new AudioContext();
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-      
-      osc.connect(gain);
-      gain.connect(ctx.destination);
-      
-      osc.type = "sine";
-      osc.frequency.setValueAtTime(800, ctx.currentTime);
-      osc.frequency.exponentialRampToValueAtTime(200, ctx.currentTime + 0.05);
-      
-      gain.gain.setValueAtTime(0.2, ctx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.05);
-      
-      osc.start();
-      osc.stop(ctx.currentTime + 0.05);
-    } catch (e) {
-      console.log("Audio not supported");
+    if (audioRef.current) {
+      // Reset the time to 0 so the sound plays immediately even if clicked rapidly
+      audioRef.current.currentTime = 0;
+      audioRef.current.play().catch((e) => console.log("Audio play failed:", e));
     }
   };
 
