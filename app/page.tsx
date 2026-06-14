@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import CubeGrid from "./components/CubeGrid";
@@ -8,8 +8,26 @@ import ImageUploader from "./components/ImageUploader";
 import { Code, Clock, BrainCircuit, Fingerprint } from "lucide-react";
 
 export default function Home() {
-  // 1. Added "3d" to the available modes and set it as the default!
   const [mode, setMode] = useState<"manual" | "3d" | "upload">("3d");
+  
+  // 1. Setup the audio reference
+  const clickSoundRef = useRef<HTMLAudioElement | null>(null);
+
+  // 2. Preload the sound on the client side
+  useEffect(() => {
+    // Reusing the same click sound you uploaded. 
+    // (You can change this to "/sounds/switch.mp3" if you add a different file later)
+    clickSoundRef.current = new Audio("/sounds/switch.mp3"); 
+  }, []);
+
+  // 3. Helper function to play sound AND switch the mode
+  const handleModeSwitch = (newMode: "manual" | "3d" | "upload") => {
+    if (clickSoundRef.current) {
+      clickSoundRef.current.currentTime = 0; // Reset so rapid clicks work seamlessly
+      clickSoundRef.current.play().catch((e) => console.log("Audio play failed:", e));
+    }
+    setMode(newMode);
+  };
 
   return (
     <div className="min-h-screen flex flex-col bg-white dark:bg-[#0a0a0a] transition-colors duration-300">
@@ -53,10 +71,10 @@ export default function Home() {
               to extract colors automatically.
             </p>
 
-            {/* 2. Added flex-wrap and the new 3D Paint button */}
+            {/* 4. Updated all three buttons to use handleModeSwitch instead of setMode */}
             <div className="flex flex-wrap gap-3">
               <button 
-                onClick={() => setMode("3d")}
+                onClick={() => handleModeSwitch("3d")}
                 className={`px-4 py-2 rounded-lg text-sm transition-all flex items-center gap-2 font-medium ${
                   mode === "3d" 
                     ? "bg-black text-white dark:bg-white dark:text-black shadow-md" 
@@ -66,7 +84,7 @@ export default function Home() {
                 🧊 3D Paint
               </button>
               <button 
-                onClick={() => setMode("manual")}
+                onClick={() => handleModeSwitch("manual")}
                 className={`px-4 py-2 rounded-lg text-sm transition-all flex items-center gap-2 font-medium ${
                   mode === "manual" 
                     ? "bg-black text-white dark:bg-white dark:text-black shadow-md" 
@@ -76,7 +94,7 @@ export default function Home() {
                 ⌨ 2D Grid
               </button>
               <button 
-                onClick={() => setMode("upload")}
+                onClick={() => handleModeSwitch("upload")}
                 className={`px-4 py-2 rounded-lg text-sm transition-all flex items-center gap-2 font-medium ${
                   mode === "upload" 
                     ? "bg-black text-white dark:bg-white dark:text-black shadow-md" 
@@ -90,7 +108,6 @@ export default function Home() {
 
           <div className="w-full h-px bg-gray-200 dark:bg-gray-800/60 my-4"></div>
 
-          {/* 3. Updated the render logic to handle all three components */}
           <section className="animate-in fade-in duration-500">
             {mode === "3d" && <InteractiveCube />}
             {mode === "manual" && <CubeGrid />}
